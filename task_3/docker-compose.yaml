@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  web:
+    build: .
+    container_name: "web"
+    restart: "unless-stopped"
+    expose:
+      - 80
+    volumes:
+      - ./media:/opt/app/media
+      - ./static:/opt/app/static
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+      - db
+
+  redis:
+    image: "redis:alpine"
+    container_name: "web-redis"
+    restart: "always"
+
+  db:
+    image: "postgres:14"
+    container_name: "web-db"
+    restart: "unless-stopped"
+    environment:
+      POSTGRES_DB: ${SQL_DATABASE}
+      POSTGRES_USER: ${SQL_USER}
+      POSTGRES_PASSWORD: ${SQL_PASSWORD}
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    expose:
+      - 5432
